@@ -1,12 +1,8 @@
 import pygame
 import sys
+from couleur import Couleur
 
 pygame.init()
-
-# Définition des couleurs
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRIS = (183, 169, 166 )
 
 
 SCREEN_WIDTH = 1280
@@ -28,15 +24,15 @@ def main_menu():
     while True:
         screen.blit(background_image, (0, 0))
 
-        draw_text("Meilleur score: 1000", font, WHITE, screen, SCREEN_WIDTH - 300, 650)
+        draw_text("Meilleur score: 1000", font, Couleur.WHITE, screen, SCREEN_WIDTH - 300, 650)
 
         play_button = pygame.Rect(500, 250, 200, 50)
-        pygame.draw.rect(screen, GRIS, play_button)
-        draw_text("PLAY", font, BLACK, screen, 560, 265)
+        pygame.draw.rect(screen, Couleur.GRIS, play_button)
+        draw_text("PLAY", font, Couleur.BLACK, screen, 560, 265)
 
         options_button = pygame.Rect(500, 350, 200, 50)
-        pygame.draw.rect(screen, GRIS, options_button)
-        draw_text("OPTIONS", font, BLACK, screen, 540, 365)
+        pygame.draw.rect(screen, Couleur.GRIS, options_button)
+        draw_text("OPTIONS", font, Couleur.BLACK, screen, 540, 365)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
