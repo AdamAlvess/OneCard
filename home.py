@@ -1,6 +1,6 @@
 import pygame
 import sys
-from couleur import Couleur
+from assets.couleur import Couleur
 
 pygame.init()
 
