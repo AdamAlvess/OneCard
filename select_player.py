@@ -2,6 +2,7 @@ import pygame
 import sys
 from Joueur import Joueur 
 from assets.couleur import SetupPygame
+from play import Play
 
 class SelectPersoPage:
     def __init__(self, screen, background_image):
@@ -21,20 +22,19 @@ class SelectPersoPage:
             "Zoro1": pygame.image.load("assets/zoro1(3).png"),
             "Zoro2": pygame.image.load("assets/zoro2(2).png"),
             "Usopp1": pygame.image.load("assets/usopp1.png"),
-            "Usopp2": pygame.image.load("assets/usopp2(4).png")
+            "Usopp2": pygame.image.load("assets/usopp2(3).png")
         }
         self.selected_color = (255, 255, 0)
         self.play_rect = pygame.Rect(550, 600, 180, 60)
         self.return_button_rect = pygame.Rect(20, 20, 100, 50) 
-
+        
     @staticmethod
     def run(screen):
         select_perso_page = SelectPersoPage(screen)
         select_perso_page.run()
 
     def run(self):
-        from home import main_menu 
-
+        from home import main_menu
         running = True
         while running:
             for event in pygame.event.get():
@@ -50,14 +50,16 @@ class SelectPersoPage:
                     elif self.play_rect.collidepoint(pos):
                         if self.joueur1.perso is not None and self.joueur2.perso is not None:
                             self.play_game()
-                        else:
-                            print("Les deux joueurs doivent sélectionner un personnage.")
+                            play_page = Play(self.screen, self.joueur1, self.joueur2, self.perso_images)
+                            play_page.run()
+                            return
                     elif self.return_button_rect.collidepoint(pos):  
                         main_menu()  
+
             self.draw()
             pygame.display.flip()
-            self.clock.tick(30)
-
+            self.clock.tick(30) 
+            
     def select_perso(self, pos):
         for perso, image in self.perso_images.items():
             if perso.endswith("1"):

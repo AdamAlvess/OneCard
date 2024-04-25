@@ -25,7 +25,7 @@ def draw_text(text, font, color, surface, x, y):
 def main_menu():
     while True:
         screen.blit(background_image, (0, 0))
-
+        
         draw_text("Meilleur score: 1000", font, Couleur.WHITE, screen, SCREEN_WIDTH - 300, 650)
 
         play_button = pygame.Rect(500, 250, 200, 50)
@@ -48,7 +48,7 @@ def main_menu():
                     return "select_player"
                 elif options_button.collidepoint(mouse_pos):
                     print("Aller à l'écran des options...")
-
+                    return "option"
         pygame.display.update()
 
 if __name__ == "__main__":
