@@ -1,6 +1,8 @@
 import pygame
 import sys
-from couleur import Couleur
+from assets.couleur import Couleur
+from assets.couleur import SetupPygame
+from option_page import  OptionPage
 
 pygame.init()
 
@@ -43,12 +45,17 @@ def main_menu():
 
                 if play_button.collidepoint(mouse_pos):
                     print("Lancement du jeu...")
-
-                    return
+                    return "select_player"
                 elif options_button.collidepoint(mouse_pos):
                     print("Aller à l'écran des options...")
-
+                    return "option"
         pygame.display.update()
 
 if __name__ == "__main__":
-    main_menu()
+    screen, _ = SetupPygame.initialize()
+    while True:
+        next_screen = main_menu()
+        if next_screen == "option":
+            option_page = OptionPage(screen)
+            option_page.show_options()
+            break
