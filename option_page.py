@@ -29,7 +29,6 @@ class OptionPage:
         surface.blit(text_obj, text_rect)
 
     def show_options(self):
-        from  home import main_menu
         running = True
         while running:
             for event in pygame.event.get():
@@ -41,8 +40,8 @@ class OptionPage:
                     for button in self.buttons:
                         if button.rect.collidepoint(mouse_pos):
                             if button == self.retour_button:
-                                main_menu()
                                 print("Home...")
+                                return "home"  # Retour à la page d'accueil
                             elif button == self.music_button:
                                 # Action à effectuer lors du clic sur le bouton Music
                                 print("Action Music...")
@@ -60,4 +59,3 @@ class OptionPage:
                 button.draw(self.screen, Couleur.BLACK)
 
             pygame.display.update()  # Met à jour l'affichage
-

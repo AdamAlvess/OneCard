@@ -2,10 +2,10 @@ import pygame
 import sys
 from assets.couleur import Couleur
 from assets.couleur import SetupPygame
-from option_page import  OptionPage
+from option_page import OptionPage
 
 pygame.init()
-
+pygame.mixer.init()
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -16,6 +16,21 @@ background_image = pygame.image.load("assets/back_home.jpg").convert()
 
 font = pygame.font.SysFont(None, 36)
 
+# Load music at program start
+music_loaded = False
+music_path = "assets/Musique_onepiece.wav"  # Update with your music file path
+nb = 0
+
+def load_music():
+    global music_loaded
+    if not music_loaded:
+        pygame.mixer.music.load(music_path)
+        music_loaded = True
+
+def play_music():
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.play(-1)  # Play in loop
+
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect()
@@ -23,6 +38,13 @@ def draw_text(text, font, color, surface, x, y):
     surface.blit(text_obj, text_rect)
 
 def main_menu():
+    global music_loaded, nb
+    
+    load_music()  # Ensure music is loaded
+    
+    if nb == 0:
+        play_music()  # Start or resume music playback
+
     while True:
         screen.blit(background_image, (0, 0))
 
@@ -45,17 +67,25 @@ def main_menu():
 
                 if play_button.collidepoint(mouse_pos):
                     print("Lancement du jeu...")
+                    # Handle game logic here (switch screens, etc.)
                     return "select_player"
                 elif options_button.collidepoint(mouse_pos):
                     print("Aller à l'écran des options...")
+                    nb = nb + 1
+                    print(nb)
                     return "option"
+                
         pygame.display.update()
+
 
 if __name__ == "__main__":
     screen, _ = SetupPygame.initialize()
     while True:
         next_screen = main_menu()
         if next_screen == "option":
+            # Don't restart music here, it's already handled in main_menu
             option_page = OptionPage(screen)
-            option_page.show_options()
+            next_screen = option_page.show_options()
+            if next_screen == "home":
+                continue  # Retour à la page d'accueil
             break
