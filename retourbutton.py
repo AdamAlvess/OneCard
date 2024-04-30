@@ -6,4 +6,6 @@ class RetourButton(Button):
         super().__init__(x, y, width, height, text, text_color, button_color)
 
     def action(self):
-        print("Action: Retour")
+        print("Action: retour")
+        # Implémentez la logique pour gérer la musique...
+        self.play_sound()  # Joue le son de clic

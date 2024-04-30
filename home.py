@@ -3,6 +3,7 @@ import sys
 from assets.couleur import Couleur
 from assets.couleur import SetupPygame
 from option_page import OptionPage
+from retourbutton import RetourButton
 
 pygame.init()
 pygame.mixer.init()
@@ -21,6 +22,9 @@ music_loaded = False
 music_path = "assets/Musique_onepiece.wav"  # Update with your music file path
 nb = 0
 
+# Create retour_button instance
+retour_button = RetourButton(250, 20, 200, 50, "Retour", Couleur.BLACK, Couleur.GRIS)
+
 def load_music():
     global music_loaded
     if not music_loaded:
@@ -37,7 +41,7 @@ def draw_text(text, font, color, surface, x, y):
     text_rect.topleft = (x, y)
     surface.blit(text_obj, text_rect)
 
-def main_menu():
+def main_menu(retour_button):
     global music_loaded, nb
     
     load_music()  # Ensure music is loaded
@@ -67,12 +71,14 @@ def main_menu():
 
                 if play_button.collidepoint(mouse_pos):
                     print("Lancement du jeu...")
+                    retour_button.action() 
                     # Handle game logic here (switch screens, etc.)
                     return "select_player"
                 elif options_button.collidepoint(mouse_pos):
                     print("Aller à l'écran des options...")
                     nb = nb + 1
                     print(nb)
+                    retour_button.action() 
                     return "option"
                 
         pygame.display.update()
@@ -81,7 +87,7 @@ def main_menu():
 if __name__ == "__main__":
     screen, _ = SetupPygame.initialize()
     while True:
-        next_screen = main_menu()
+        next_screen = main_menu(retour_button)
         if next_screen == "option":
             # Don't restart music here, it's already handled in main_menu
             option_page = OptionPage(screen)

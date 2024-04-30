@@ -1,12 +1,17 @@
 import pygame
 from assets.couleur import Couleur
 from button import Button
+from retourbutton import RetourButton
 from musicbutton import MusicButton
 from commandbutton import CommandButton
 from soundbutton import SoundButton
 
+pygame.init()
+
 class OptionPage:
-    current_music_volume = 0.5  # Volume initial (de 0 à 1)
+    current_music_volume = 0.1  # Volume initial (de 0 à 1)
+    sound_effect1 = pygame.mixer.Sound("assets/Son_clic.wav")
+    sound_on = True  # Variable pour le son
 
     def __init__(self, app):
         self.app = app
@@ -18,7 +23,7 @@ class OptionPage:
         self.background_image = pygame.image.load("assets/back_home.jpg").convert()
         self.font = pygame.font.SysFont(None, 36)
 
-        self.retour_button = Button(250, 20, 200, 50, "Retour", Couleur.BLACK, Couleur.GRIS)
+        self.retour_button = RetourButton(250, 20, 200, 50, "Retour", Couleur.BLACK, Couleur.GRIS)
         self.music_button = MusicButton(500, 250, 200, 50, "Music", Couleur.BLACK, Couleur.GRIS)
         self.sound_button = SoundButton(500, 350, 200, 50, "Sound", Couleur.BLACK, Couleur.GRIS)
         self.command_button = CommandButton(500, 450, 200, 50, "Commands", Couleur.BLACK, Couleur.GRIS)
@@ -66,22 +71,30 @@ class OptionPage:
                         if button.rect.collidepoint(mouse_pos):
                             if button == self.retour_button:
                                 print("Home...")
-                                return "home"  # Retour à la page d'accueil
+                                self.retour_button.action()
+                                return "home"
                             elif button == self.music_button:
                                 print("Affichage de la fenêtre de contrôle du volume...")
+                                self.music_button.action()
                                 self.show_volume_slider()
                             elif button == self.sound_button:
-                                # Action à effectuer lors du clic sur le bouton Sound
                                 print("Action Sound...")
+                                self.sound_button.action()
+                                # Inverser l'état du son lorsque le bouton Sound est cliqué
+                                OptionPage.sound_on = not OptionPage.sound_on
                             elif button == self.command_button:
-                                # Action à effectuer lors du clic sur le bouton Commands
                                 print("Action Commands...")
+                                self.command_button.action()
 
             self.screen.blit(self.background_image, (0, 0))
             self.draw_text("Page des options", self.font, Couleur.BLACK, self.screen, 20, 20)
 
             for button in self.buttons:
                 button.draw(self.screen, Couleur.BLACK)
+
+            # Afficher le texte "ON" ou "OFF" à côté du bouton Sound en fonction de l'état du son
+            sound_text = "ON" if OptionPage.sound_on else "OFF"
+            self.draw_text(sound_text, self.font, Couleur.BLACK, self.screen, 730, 365)
 
             pygame.display.update()  # Met à jour l'affichage
 
@@ -132,4 +145,8 @@ class OptionPage:
     def is_ok_clicked(self, mouse_pos):
         # Vérifie si le bouton "OK" est cliqué
         ok_button_rect = pygame.Rect(550, 500, 100, 50)
-        return ok_button_rect.collidepoint(mouse_pos)
+        if ok_button_rect.collidepoint(mouse_pos):
+            self.retour_button.action()  
+            return True
+        return False
+
