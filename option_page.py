@@ -6,6 +6,8 @@ from commandbutton import CommandButton
 from soundbutton import SoundButton
 
 class OptionPage:
+    current_music_volume = 0.5  # Volume initial (de 0 à 1)
+
     def __init__(self, app):
         self.app = app
         self.SCREEN_WIDTH = 1280
@@ -22,11 +24,34 @@ class OptionPage:
         self.command_button = CommandButton(500, 450, 200, 50, "Commands", Couleur.BLACK, Couleur.GRIS)
         self.buttons = [self.retour_button, self.music_button, self.sound_button, self.command_button]
 
+        # Variables pour le curseur de volume
+        self.volume_slider_x = 400
+        self.volume_slider_y = 300
+        self.volume_slider_width = 400
+        self.volume_slider_height = 10
+
     def draw_text(self, text, font, color, surface, x, y):
         text_obj = font.render(text, True, color)
         text_rect = text_obj.get_rect()
         text_rect.topleft = (x, y)
         surface.blit(text_obj, text_rect)
+        
+    @staticmethod
+    def set_music_volume(option_page):
+        global current_music_volume
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:  # Left mouse button
+                        mouse_x, _ = pygame.mouse.get_pos()
+                        current_music_volume = max(0, min(1, (mouse_x - option_page.volume_slider_x) - option_page.volume_slider_width))
+                        pygame.mixer.music.set_volume(current_music_volume)
+                        print("Volume de la musique:", current_music_volume)
+                        return
 
     def show_options(self):
         running = True
@@ -43,8 +68,8 @@ class OptionPage:
                                 print("Home...")
                                 return "home"  # Retour à la page d'accueil
                             elif button == self.music_button:
-                                # Action à effectuer lors du clic sur le bouton Music
-                                print("Action Music...")
+                                print("Affichage de la fenêtre de contrôle du volume...")
+                                self.show_volume_slider()
                             elif button == self.sound_button:
                                 # Action à effectuer lors du clic sur le bouton Sound
                                 print("Action Sound...")
@@ -59,3 +84,52 @@ class OptionPage:
                 button.draw(self.screen, Couleur.BLACK)
 
             pygame.display.update()  # Met à jour l'affichage
+
+    def show_volume_slider(self):
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:  # Left mouse button
+                        self.handle_slider_movement()  # Correction du nom de la méthode
+                        if self.is_ok_clicked(event.pos):  # Vérifie si le bouton "OK" est cliqué
+                            return  # Retourne à la page des options si le bouton "OK" est cliqué
+                elif event.type == pygame.MOUSEMOTION:
+                    if pygame.mouse.get_pressed()[0]:  # Si le bouton de la souris est maintenu enfoncé
+                        self.handle_slider_movement()  # Gère le mouvement continu du curseur
+
+            # Affiche la fenêtre pop-up avec le slider
+            self.screen.blit(self.background_image, (0, 0))
+            pygame.draw.rect(self.screen, Couleur.GRIS, (self.volume_slider_x, self.volume_slider_y,
+                                                        self.volume_slider_width, self.volume_slider_height))
+            pygame.draw.rect(self.screen, Couleur.BLACK, (int(self.volume_slider_x + OptionPage.current_music_volume *
+                                                            self.volume_slider_width - 5),
+                                                        self.volume_slider_y - 5, 10, 20))
+
+            # Dessine le bouton "OK"
+            pygame.draw.rect(self.screen, Couleur.GRIS, (550, 500, 100, 50))
+            self.draw_text("OK", self.font, Couleur.BLACK, self.screen, 580, 515)
+
+            pygame.display.update()
+
+
+    def handle_slider_movement(self):
+        # Gère le mouvement continu du curseur
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if (self.volume_slider_x <= mouse_x <= self.volume_slider_x + self.volume_slider_width and
+            self.volume_slider_y - 5 <= mouse_y <= self.volume_slider_y + 20):
+            volume = (mouse_x - self.volume_slider_x) / self.volume_slider_width
+            volume = max(0, min(1, volume))
+            pygame.mixer.music.set_volume(volume)
+            OptionPage.current_music_volume = volume
+            print("Volume de la musique:", volume)
+
+
+
+    def is_ok_clicked(self, mouse_pos):
+        # Vérifie si le bouton "OK" est cliqué
+        ok_button_rect = pygame.Rect(550, 500, 100, 50)
+        return ok_button_rect.collidepoint(mouse_pos)
