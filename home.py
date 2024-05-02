@@ -3,9 +3,12 @@ import sys
 from assets.couleur import Couleur
 from assets.couleur import SetupPygame
 from select_player import SelectPersoPage
+from option_page import OptionPage
+from retourbutton import RetourButton
+
 
 pygame.init()
-
+pygame.mixer.init()
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -16,14 +19,43 @@ background_image = pygame.image.load("assets/back_home.jpg").convert()
 
 font = pygame.font.SysFont(None, 36)
 
+# Load music at program start
+music_loaded = False
+music_path = "assets/Musique_onepiece.wav"  # Update with your music file path
+nb = 0
+
+# Create retour_button instance
+retour_button = RetourButton(250, 20, 200, 50, "Retour", Couleur.BLACK, Couleur.GRIS)
+
+# Define the return button rectangle
+return_button_rect = pygame.Rect(20, 20, 100, 50)
+
+def load_music():
+    global music_loaded
+    if not music_loaded:
+        pygame.mixer.music.load(music_path)
+        music_loaded = True
+
+def play_music():
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.play(-1)  # Play in loop
+
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect()
     text_rect.topleft = (x, y)
     surface.blit(text_obj, text_rect)
 
-def main_menu():
-    while True:
+def main_menu(retour_button):
+    global music_loaded, nb
+    
+    load_music()  # Ensure music is loaded
+    
+    if nb == 0:
+        play_music()  # Start or resume music playback
+
+    running = True
+    while running:
         screen.blit(background_image, (0, 0))
         
         draw_text("Meilleur score: 1000", font, Couleur.WHITE, screen, SCREEN_WIDTH - 300, 650)
@@ -45,17 +77,35 @@ def main_menu():
 
                 if play_button.collidepoint(mouse_pos):
                     print("Lancement du jeu...")
+                    retour_button.action() 
+                    # Handle game logic here (switch screens, etc.)
                     return "select_player"
                 elif options_button.collidepoint(mouse_pos):
                     print("Aller à l'écran des options...")
+                    nb = nb + 1
+                    print(nb)
+                    retour_button.action() 
                     return "option"
+                
+                
         pygame.display.update()
+
 
 if __name__ == "__main__":
     screen, _ = SetupPygame.initialize()
     while True:
-        next_screen = main_menu()
+        next_screen = main_menu(retour_button)  # Modifier les arguments si nécessaire
         if next_screen == "select_player":
             select_perso_page = SelectPersoPage(screen, background_image)
-            select_perso_page.run()
+            next_screen = select_perso_page.run()  # Récupère la valeur renvoyée par la méthode run()
+            if next_screen == "home":
+                continue  # Retourne à la page d'accueil
+            break
+
+        if next_screen == "option":
+            # Ne redémarre pas la musique ici, elle est déjà gérée dans main_menu
+            option_page = OptionPage(screen)
+            next_screen = option_page.show_options()
+            if next_screen == "home":
+                continue  # Retourne à la page d'accueil
             break

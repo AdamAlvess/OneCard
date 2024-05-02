@@ -3,6 +3,9 @@ import sys
 from Joueur import Joueur 
 from assets.couleur import SetupPygame
 from play import Play
+from retourbutton import RetourButton
+from assets.couleur import Couleur
+
 
 class SelectPersoPage:
     def __init__(self, screen, background_image):
@@ -12,6 +15,8 @@ class SelectPersoPage:
         self.background_image = background_image
         self.joueur1 = Joueur("Joueur 1", None)  
         self.joueur2 = Joueur("Joueur 2", None) 
+        self.retour_button = RetourButton(20, 20, 100, 50, "Retour", Couleur.BLACK, Couleur.GRIS)  # Positionne le bouton de retour
+
         self.player1_rect = pygame.Rect(50, 100, 200, 500)
         self.player2_rect = pygame.Rect(1030, 100, 200, 500)
         self.perso_images = {
@@ -26,7 +31,7 @@ class SelectPersoPage:
         }
         self.selected_color = (255, 255, 0)
         self.play_rect = pygame.Rect(550, 600, 180, 60)
-        self.return_button_rect = pygame.Rect(20, 20, 100, 50) 
+        #self.return_button_rect = pygame.Rect(20, 20, 100, 50) 
         
     @staticmethod
     def run(screen):
@@ -43,7 +48,11 @@ class SelectPersoPage:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
-                    if self.player1_rect.collidepoint(pos):
+                    if self.retour_button.rect.collidepoint(pos):  # Vérifie si le bouton de retour est cliqué
+                        print("Retour...")
+                        return "home"  # Retourne à la page d'accueil
+                    
+                    elif self.player1_rect.collidepoint(pos):
                         self.joueur1.perso = self.select_perso(pos)
                     elif self.player2_rect.collidepoint(pos):
                         self.joueur2.perso = self.select_perso(pos)
@@ -52,8 +61,7 @@ class SelectPersoPage:
                             play_page = Play(self.screen, self.joueur1, self.joueur2, self.perso_images)
                             play_page.run()
                             return
-                    elif self.return_button_rect.collidepoint(pos):  
-                        main_menu()  
+                     
 
             self.draw()
             pygame.display.flip()
@@ -73,6 +81,8 @@ class SelectPersoPage:
 
         pygame.draw.rect(self.screen, (255, 0, 0), self.player1_rect, 2)
         pygame.draw.rect(self.screen, (0, 0, 255), self.player2_rect, 2)
+        self.retour_button.draw(self.screen)  # Dessine le bouton de retour
+
 
         offset = 0
         for perso, image in self.perso_images.items():
@@ -96,6 +106,6 @@ class SelectPersoPage:
         play_text = self.font.render("Play", True, (255, 255, 255))
         self.screen.blit(play_text, self.play_rect.topleft)
 
-        pygame.draw.rect(self.screen, (255, 0, 0), self.return_button_rect)
-        return_text = self.font.render("Retour", True, (255, 255, 255))
-        self.screen.blit(return_text, self.return_button_rect.topleft)
+        #pygame.draw.rect(self.screen, (255, 0, 0), self.return_button_rect)
+        #return_text = self.font.render("Retour", True, (255, 255, 255))
+        #self.screen.blit(return_text, self.return_button_rect.topleft)

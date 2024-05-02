@@ -1,0 +1,9 @@
+*.DS_Store
+
+*.o
+*.out
+*.exe
+
+.vscode/
+.idea/
+node_modules/
