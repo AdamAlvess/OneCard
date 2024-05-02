@@ -1,19 +1,21 @@
 class Perso:
-    def __init__(self, nom, pv_max=500):
+    def __init__(self, nom, image,pv_max=500):
         self.nom = nom
         self.pv_max = pv_max
+        self.image = image
         self.pv = pv_max
         self.x = 0 
         self.y = 0
         self.jump_height = 100 
         self.jump_time = 10 
         self.jump_count = 0
+        self.arme = None
 
     def perdre_pv(self, degats):
         self.pv -= degats
         if self.pv <= 0:
             self.pv = 0
-            print(f"{self.nom} est mort.")
+            
 
     def soigner(self, soin):
         self.pv += soin

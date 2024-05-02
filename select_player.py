@@ -100,11 +100,3 @@ class SelectPersoPage:
         pygame.draw.rect(self.screen, (255, 0, 0), self.return_button_rect)
         return_text = self.font.render("Retour", True, (255, 255, 255))
         self.screen.blit(return_text, self.return_button_rect.topleft)
-
-    def play_game(self):
-        print("Joueur 1:")
-        print("Nom:", self.joueur1.nom)
-        print("Personnage sélectionné:", self.joueur1.perso)
-        print("Joueur 2:")
-        print("Nom:", self.joueur2.nom)
-        print("Personnage sélectionné:", self.joueur2.perso)
