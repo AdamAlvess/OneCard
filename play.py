@@ -4,6 +4,7 @@ import random
 from perso import Perso
 from barre_vie import Barre_vie
 from arme import Arme
+import math
 
 class Play:
     def __init__(self, screen, joueur1, joueur2, perso_images):
@@ -65,6 +66,65 @@ class Play:
 
 
             
+    def throw_weapon(self, player_number,SCREEN_HEIGHT=720,SCREEN_WIDTH=1280):
+        if player_number == 1:
+            player = self.personnage_joueur1
+        elif player_number == 2:
+            player = self.personnage_joueur2
+        else:
+            return  
+
+        if player.arme:  
+            weapon = player.arme
+            player.arme = None  
+
+            # Coordonnées initiales de l'arme au lancement
+            weapon_x = player.x + player.image.get_width() // 2
+            weapon_y = player.y + player.image.get_height() // 2
+
+            # Paramètres de la trajectoire parabolique
+            initial_velocity = 20  # Augmenter la vitesse initiale du lancer
+            angle_degrees = 60  # Augmenter l'angle de lancement (60 degrés)
+            gravity = 0.8  # Gravité simulée pour la trajectoire parabolique    
+
+            angle_radians = math.radians(angle_degrees)
+            vx = initial_velocity * math.cos(angle_radians)
+            vy = -initial_velocity * math.sin(angle_radians)
+
+            time = 0
+            while True:
+                pygame.time.wait(30)  # Attendre entre chaque frame (30 ms pour simuler 30 FPS)
+                time += 1
+
+                # Calculer les nouvelles positions selon la trajectoire parabolique
+                weapon_x += vx
+                weapon_y += vy + 0.5 * gravity * time ** 2
+
+                # Dessiner l'arme à sa nouvelle position
+                self.screen.blit(weapon.image, (weapon_x, weapon_y))
+
+                # Détection de collision avec l'adversaire
+                if self.check_collision_with_opponent(weapon_x, weapon_y, weapon):
+                    if player_number == 1:
+                        opponent = self.personnage_joueur2
+                    else:
+                        opponent = self.personnage_joueur1
+                    opponent.perdre_pv(weapon.degats)  # Réduire les PV de l'adversaire
+                    break
+
+                # Si l'arme sort de l'écran ou atteint le sol sans toucher l'adversaire
+                if weapon_y > SCREEN_HEIGHT or weapon_x > SCREEN_WIDTH:
+                    break
+
+                pygame.display.flip()  # Mettre à jour l'écran
+
+
+    def check_collision_with_opponent(self, x, y, weapon):
+        opponent_rect = pygame.Rect(self.personnage_joueur2.x, self.personnage_joueur2.y,
+                                     self.personnage_joueur2.image.get_width(), self.personnage_joueur2.image.get_height())
+        weapon_rect = pygame.Rect(x, y, weapon.image.get_width(), weapon.image.get_height())
+        return weapon_rect.colliderect(opponent_rect)
+
     def run(self):
         running = True
         while running:
@@ -73,20 +133,29 @@ class Play:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    self.key_states[event.key] = True 
+                    self.key_states[event.key] = True
+
                     if event.key == pygame.K_a:
-                        self.fire_bulletJ1()  
-                    elif event.key == pygame.K_m:  
-                        self.fire_bulletJ2() 
+                        self.fire_bulletJ1()
+                    elif event.key == pygame.K_m:
+                        self.fire_bulletJ2()
+
+                    elif event.key == pygame.K_e:
+                        self.throw_weapon(1)  
+                    elif event.key == pygame.K_p:
+                        self.throw_weapon(2)  
+
                 elif event.type == pygame.KEYUP:
                     self.key_states[event.key] = False
-            self.move_characters() 
-            self.personnage_joueur1.update_jump() 
-            self.personnage_joueur2.update_jump() 
+
+            self.move_characters()
+            self.personnage_joueur1.update_jump()
+            self.personnage_joueur2.update_jump()
             self.detect_collision()
             self.spawn_random_weapon()
             self.update()
             self.draw()
+
             pygame.display.flip()
             self.clock.tick(30)
 
