@@ -50,6 +50,7 @@ class SelectPersoPage:
                     pos = pygame.mouse.get_pos()
                     if self.retour_button.rect.collidepoint(pos):  # Vérifie si le bouton de retour est cliqué
                         print("Retour...")
+                        self.retour_button.action()
                         return "home"  # Retourne à la page d'accueil
                     
                     elif self.player1_rect.collidepoint(pos):
@@ -59,6 +60,7 @@ class SelectPersoPage:
                     elif self.play_rect.collidepoint(pos):
                         if self.joueur1.perso is not None and self.joueur2.perso is not None:
                             play_page = Play(self.screen, self.joueur1, self.joueur2, self.perso_images)
+                            self.retour_button.action()
                             play_page.run()
                             return
                      

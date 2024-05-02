@@ -177,4 +177,5 @@ class OptionPage:
                     quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.Rect(550, 600, 100, 50).collidepoint(event.pos):
+                        self.retour_button.action()
                         return  # Retourne à la page des options si le bouton "OK" est cliqué
