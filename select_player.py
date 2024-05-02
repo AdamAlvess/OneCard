@@ -49,7 +49,6 @@ class SelectPersoPage:
                         self.joueur2.perso = self.select_perso(pos)
                     elif self.play_rect.collidepoint(pos):
                         if self.joueur1.perso is not None and self.joueur2.perso is not None:
-                            self.play_game()
                             play_page = Play(self.screen, self.joueur1, self.joueur2, self.perso_images)
                             play_page.run()
                             return

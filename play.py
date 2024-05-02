@@ -19,9 +19,11 @@ class Play:
         self.background_image = pygame.transform.scale(self.background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
         self.joueur1 = joueur1
         self.joueur2 = joueur2
-        self.perso_images = perso_images  
-        self.personnage_joueur1 = Perso(joueur1.perso, self.scale_image(self.perso_images[joueur1.perso]))
-        self.personnage_joueur2 = Perso(joueur2.perso, self.scale_image(self.perso_images[joueur2.perso]))
+        self.perso_images = perso_images 
+        start_y_player1 = SCREEN_HEIGHT - 200
+        start_y_player2 = SCREEN_HEIGHT - 200
+        self.personnage_joueur1 = Perso(joueur1.perso, self.scale_image(self.perso_images[joueur1.perso]), y=start_y_player1)
+        self.personnage_joueur2 = Perso(joueur2.perso, self.scale_image(self.perso_images[joueur2.perso]), y=start_y_player2) 
         self.personnage_joueur1.x = 50  
         self.personnage_joueur1.y = SCREEN_HEIGHT - 200 
         self.personnage_joueur2.x = SCREEN_WIDTH - 150  
@@ -88,22 +90,26 @@ class Play:
             pygame.display.flip()
             self.clock.tick(30)
 
-    def move_characters(self):
+    def move_characters(self, SCREEN_WIDTH=1280):
         # Déplacer le joueur 1
         if self.key_states.get(pygame.K_z):
             self.personnage_joueur1.deplacer_haut()
         if self.key_states.get(pygame.K_q):
-            self.personnage_joueur1.deplacer_gauche()
+            if self.personnage_joueur1.x > 0:  
+                self.personnage_joueur1.deplacer_gauche()
         if self.key_states.get(pygame.K_d):
-            self.personnage_joueur1.deplacer_droite()
+            if self.personnage_joueur1.x < SCREEN_WIDTH - self.personnage_joueur1.image.get_width(): 
+                self.personnage_joueur1.deplacer_droite()
 
         # Déplacer le joueur 2
         if self.key_states.get(pygame.K_UP):
             self.personnage_joueur2.deplacer_haut()
         if self.key_states.get(pygame.K_LEFT):
-            self.personnage_joueur2.deplacer_gauche()
+            if self.personnage_joueur2.x > 0: 
+                self.personnage_joueur2.deplacer_gauche()
         if self.key_states.get(pygame.K_RIGHT):
-            self.personnage_joueur2.deplacer_droite()
+            if self.personnage_joueur2.x < SCREEN_WIDTH - self.personnage_joueur2.image.get_width(): 
+                self.personnage_joueur2.deplacer_droite()
 
     def update(self, SCREEN_HEIGHT=720, SCREEN_WIDTH=1280):
         from home import main_menu
@@ -164,7 +170,7 @@ class Play:
             weapon_rect = pygame.Rect(x, y, weapon.image.get_width(), weapon.image.get_height())
             if player1_rect.colliderect(weapon_rect):
                 self.personnage_joueur1.arme = weapon
-                self.weapons.reve((weapon, x, y))
+                self.weapons.remove((weapon, x, y))
                 break
             if player2_rect.colliderect(weapon_rect):
                 self.personnage_joueur2.arme = weapon
