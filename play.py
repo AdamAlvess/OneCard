@@ -129,6 +129,11 @@ class Play:
             pygame.quit()
             sys.exit()  
 
+        if self.personnage_joueur2.pv == 0:
+            main_menu()
+            pygame.quit()
+            sys.exit()  
+            
         updated_weapons = []
         for weapon, x, y in self.weapons:
             if y < SCREEN_HEIGHT - 200:  
