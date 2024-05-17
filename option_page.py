@@ -149,7 +149,8 @@ class OptionPage:
             sound_text = "ON" if OptionPage.sound_on else "OFF"
             self.draw_text(sound_text, self.font, Couleur.WHITE, self.screen, 730, 365)
 
-            pygame.display.update()  # Met à jour l'affichage
+        pygame.display.update()  # Met à jour l'affichage après la boucle while
+
 
     def show_command_window(self):
         # Crée une nouvelle surface pour la fenêtre des commandes

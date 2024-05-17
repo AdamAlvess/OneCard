@@ -4,6 +4,7 @@ import random
 from perso import Perso
 from barre_vie import Barre_vie
 from arme import Arme
+from end_game_screen import EndGameScreen
 
 class Play:
     def __init__(self, screen, joueur1, joueur2, perso_images):
@@ -40,6 +41,12 @@ class Play:
         self.last_weapon_spawn = pygame.time.get_ticks()
         self.first_spawn = False
         self.bullets = []
+        
+    def start_new_game(self, joueur1, joueur2, perso_images):  # Ajoutez self comme premier paramètre
+        # Créez une instance de la classe Play pour démarrer une nouvelle partie
+        game = Play(self.screen, joueur1, joueur2, perso_images)
+        # Lancez la partie
+        game.run()
 
     def scale_image(self, image):
         return pygame.transform.scale(image, (100, 100))
@@ -62,7 +69,6 @@ class Play:
             bullet_y = self.personnage_joueur2.y + self.personnage_joueur2.image.get_height() // 2
             bullet_speed = -10
             self.bullets.append((bullet_image, bullet_x, bullet_y, bullet_speed, self.personnage_joueur2))  # Ajoutez une référence au tireur
-
 
             
     def run(self):
@@ -110,29 +116,38 @@ class Play:
         if self.key_states.get(pygame.K_RIGHT):
             if self.personnage_joueur2.x < SCREEN_WIDTH - self.personnage_joueur2.image.get_width(): 
                 self.personnage_joueur2.deplacer_droite()
+                
+    def check_victory(self):
+        if self.personnage_joueur1.pv <= 0:
+            return self.joueur2
+        elif self.personnage_joueur2.pv <= 0:
+            return self.joueur1
+        return None
 
     def update(self, SCREEN_HEIGHT=720, SCREEN_WIDTH=1280):
         from home import main_menu
+        import end_game_screen
         current_time = pygame.time.get_ticks()
         
         if current_time - self.last_time_update >= 1000: 
             self.time_left -= 1
             self.last_time_update = current_time
+               
+        winner = self.check_victory()
+        if winner:
+            end_screen = EndGameScreen(self.screen, winner, self.joueur1, self.joueur2, self.perso_images)
+            end_screen.run()
+            main_menu()
+            pygame.quit()
+            self.start_new_game(self.joueur1, self.joueur2, self.perso_images)  # Lancer une nouvelle partie
+
+            sys.exit()
         
         if self.time_left == 0:
             main_menu()
             pygame.quit()
             sys.exit()
         
-        if self.personnage_joueur1.pv == 0:
-            main_menu()
-            pygame.quit()
-            sys.exit()  
-
-        if self.personnage_joueur2.pv == 0:
-            main_menu()
-            pygame.quit()
-            sys.exit()  
             
         updated_weapons = []
         for weapon, x, y in self.weapons:

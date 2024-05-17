@@ -1,11 +1,14 @@
 import pygame
 import sys
+import serial
 from assets.couleur import Couleur
 from assets.couleur import SetupPygame
 from select_player import SelectPersoPage
 from option_page import OptionPage
 from retourbutton import RetourButton
 
+# Initialiser la connexion série
+ser = serial.Serial('/dev/tty.usbmodem11201', 9600, timeout=1)  # Remplace par le port série correct
 
 pygame.init()
 pygame.mixer.init()
@@ -30,6 +33,13 @@ retour_button = RetourButton(250, 20, 200, 50, "Retour", Couleur.BLACK, Couleur.
 # Define the return button rectangle
 return_button_rect = pygame.Rect(20, 20, 100, 50)
 
+# Define button rectangles
+play_button = pygame.Rect(500, 250, 200, 50)
+options_button = pygame.Rect(500, 350, 200, 50)
+
+# Variable to track the selected button
+selected_button = "play"
+
 def load_music():
     global music_loaded
     if not music_loaded:
@@ -46,8 +56,17 @@ def draw_text(text, font, color, surface, x, y):
     text_rect.topleft = (x, y)
     surface.blit(text_obj, text_rect)
 
+def read_joystick_data():
+    try:
+        data = ser.readline().decode('utf-8').strip()
+        if data:
+            x1, y1, x2, y2, btn1, btn2 = map(int, data.split(','))
+            return x1, y1, x2, y2, btn1, btn2
+    except:
+        return None
+
 def main_menu(retour_button):
-    global music_loaded, nb
+    global music_loaded, nb, selected_button
     
     load_music()  # Ensure music is loaded
     
@@ -60,52 +79,67 @@ def main_menu(retour_button):
         
         draw_text("Meilleur score: 1000", font, Couleur.WHITE, screen, SCREEN_WIDTH - 300, 650)
 
-        play_button = pygame.Rect(500, 250, 200, 50)
-        pygame.draw.rect(screen, Couleur.GRIS, play_button)
-        draw_text("PLAY", font, Couleur.BLACK, screen, 560, 265)
+        # Highlight the selected button
+        if selected_button == "play":
+            pygame.draw.rect(screen, Couleur.GRIS, play_button)
+            pygame.draw.rect(screen, (192, 192, 192), options_button)  # Utilise une couleur prédéfinie
+            draw_text("PLAY", font, Couleur.BLACK, screen, 560, 265)
+            draw_text("OPTIONS", font, Couleur.BLACK, screen, 540, 365)
+        elif selected_button == "options":
+            pygame.draw.rect(screen, (192, 192, 192), play_button)  # Utilise une couleur prédéfinie
+            pygame.draw.rect(screen, Couleur.GRIS, options_button)
+            draw_text("PLAY", font, Couleur.BLACK, screen, 560, 265)
+            draw_text("OPTIONS", font, Couleur.BLACK, screen, 540, 365)
 
-        options_button = pygame.Rect(500, 350, 200, 50)
-        pygame.draw.rect(screen, Couleur.GRIS, options_button)
-        draw_text("OPTIONS", font, Couleur.BLACK, screen, 540, 365)
+        joystick_data = read_joystick_data()
+        if joystick_data:
+            x1, y1, x2, y2, btn1, btn2 = joystick_data
+            # Utilise les données du joystick ici
+            if y1 > 600:  # Joystick down
+                if selected_button == "play":
+                    selected_button = "options"
+            elif y1 < 400:  # Joystick up
+                if selected_button == "options":
+                    selected_button = "play"
+            if btn1 == 0:  # Joystick button pressed
+                if selected_button == "play":
+                    print("Lancement du jeu...")
+                    retour_button.action() 
+                    return "select_player"
+                elif selected_button == "options":
+                    print("Aller à l'écran des options...")
+                    nb += 1
+                    retour_button.action() 
+                    return "option"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = event.pos
-
-                if play_button.collidepoint(mouse_pos):
-                    print("Lancement du jeu...")
-                    retour_button.action() 
-                    # Handle game logic here (switch screens, etc.)
-                    return "select_player"
-                elif options_button.collidepoint(mouse_pos):
-                    print("Aller à l'écran des options...")
-                    nb = nb + 1
-                    print(nb)
-                    retour_button.action() 
-                    return "option"
-                
-                
+        
         pygame.display.update()
+
 
 
 if __name__ == "__main__":
     screen, _ = SetupPygame.initialize()
+    current_screen = "home"  # Ajouter la variable current_screen
     while True:
         next_screen = main_menu(retour_button)  # Modifier les arguments si nécessaire
-        if next_screen == "select_player":
+        if next_screen == "select_player" and current_screen == "home":
             select_perso_page = SelectPersoPage(screen, background_image)
             next_screen = select_perso_page.run()  # Récupère la valeur renvoyée par la méthode run()
             if next_screen == "home":
-                continue  # Retourne à la page d'accueil
-            break
+                current_screen = "home"  # Retourne à la page d'accueil
+                continue  # Revenir au début de la boucle
+            break  # Sortir de la boucle principale si la valeur de retour n'est pas "home"
 
-        if next_screen == "option":
+        if next_screen == "options" and current_screen == "home":
             # Ne redémarre pas la musique ici, elle est déjà gérée dans main_menu
             option_page = OptionPage(screen)
             next_screen = option_page.show_options()
             if next_screen == "home":
-                continue  # Retourne à la page d'accueil
-            break
+                current_screen = "home"  # Retourne à la page d'accueil
+                continue  # Revenir au début de la boucle
+            break  # Sortir de la boucle principale si la valeur de retour n'est pas "home"
+
