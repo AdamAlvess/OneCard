@@ -16,3 +16,7 @@ class RetourButton(Button):
     def is_over(self, mouse_pos):
         # Vérifie si les coordonnées du curseur de la souris se trouvent à l'intérieur de la zone du bouton
         return self.rect.collidepoint(mouse_pos)
+    
+    def update_color(self, button_color, text_color):
+        self.button_color = button_color
+        self.text_color = text_color

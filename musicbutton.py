@@ -8,3 +8,7 @@ class MusicButton(Button):
         print("Action: Gestion de la musique")
         # Implémentez la logique pour gérer la musique...
         self.play_sound()  # Joue le son de clic
+    
+    def update_color(self, button_color, text_color):
+        self.button_color = button_color
+        self.text_color = text_color

@@ -30,12 +30,15 @@ nb = 0
 # Create retour_button instance
 retour_button = RetourButton(250, 20, 200, 50, "Retour", Couleur.BLACK, Couleur.GRIS)
 
-# Define the return button rectangle
-return_button_rect = pygame.Rect(20, 20, 100, 50)
-
 # Define button rectangles
 play_button = pygame.Rect(500, 250, 200, 50)
 options_button = pygame.Rect(500, 350, 200, 50)
+
+# Define states
+STATE_HOME = "home"
+STATE_SELECT_PLAYER = "select_player"
+STATE_OPTIONS = "options"
+current_state = STATE_HOME
 
 # Variable to track the selected button
 selected_button = "play"
@@ -66,7 +69,7 @@ def read_joystick_data():
         return None
 
 def main_menu(retour_button):
-    global music_loaded, nb, selected_button
+    global music_loaded, nb, selected_button, current_state
     
     load_music()  # Ensure music is loaded
     
@@ -81,15 +84,15 @@ def main_menu(retour_button):
 
         # Highlight the selected button
         if selected_button == "play":
-            pygame.draw.rect(screen, Couleur.GRIS, play_button)
-            pygame.draw.rect(screen, (192, 192, 192), options_button)  # Utilise une couleur prédéfinie
-            draw_text("PLAY", font, Couleur.BLACK, screen, 560, 265)
-            draw_text("OPTIONS", font, Couleur.BLACK, screen, 540, 365)
-        elif selected_button == "options":
-            pygame.draw.rect(screen, (192, 192, 192), play_button)  # Utilise une couleur prédéfinie
+            pygame.draw.rect(screen, Couleur.BLACK, play_button)
             pygame.draw.rect(screen, Couleur.GRIS, options_button)
-            draw_text("PLAY", font, Couleur.BLACK, screen, 560, 265)
-            draw_text("OPTIONS", font, Couleur.BLACK, screen, 540, 365)
+            draw_text("PLAY", font, Couleur.RED, screen, 560, 265)
+            draw_text("OPTIONS", font, Couleur.RED, screen, 540, 365)
+        elif selected_button == "options":
+            pygame.draw.rect(screen, Couleur.GRIS, play_button)
+            pygame.draw.rect(screen, Couleur.BLACK, options_button)
+            draw_text("PLAY", font, Couleur.RED, screen, 560, 265)
+            draw_text("OPTIONS", font, Couleur.RED, screen, 540, 365)
 
         joystick_data = read_joystick_data()
         if joystick_data:
@@ -104,13 +107,13 @@ def main_menu(retour_button):
             if btn1 == 0:  # Joystick button pressed
                 if selected_button == "play":
                     print("Lancement du jeu...")
-                    retour_button.action() 
-                    return "select_player"
+                    retour_button.action()
+                    return STATE_SELECT_PLAYER
                 elif selected_button == "options":
                     print("Aller à l'écran des options...")
-                    nb += 1
+                    nb = nb + 1
                     retour_button.action() 
-                    return "option"
+                    return STATE_OPTIONS
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -119,27 +122,25 @@ def main_menu(retour_button):
         
         pygame.display.update()
 
-
-
 if __name__ == "__main__":
     screen, _ = SetupPygame.initialize()
-    current_screen = "home"  # Ajouter la variable current_screen
+    option_page = OptionPage(screen, ser)  # Créer une instance de la page d'options en dehors de la boucle principale
+    
     while True:
-        next_screen = main_menu(retour_button)  # Modifier les arguments si nécessaire
-        if next_screen == "select_player" and current_screen == "home":
+        if current_state == STATE_HOME:
+            next_state = main_menu(retour_button)
+            if next_state == STATE_SELECT_PLAYER:
+                current_state = STATE_SELECT_PLAYER
+            elif next_state == STATE_OPTIONS:
+                current_state = STATE_OPTIONS
+        
+        elif current_state == STATE_SELECT_PLAYER:
             select_perso_page = SelectPersoPage(screen, background_image)
-            next_screen = select_perso_page.run()  # Récupère la valeur renvoyée par la méthode run()
-            if next_screen == "home":
-                current_screen = "home"  # Retourne à la page d'accueil
-                continue  # Revenir au début de la boucle
-            break  # Sortir de la boucle principale si la valeur de retour n'est pas "home"
-
-        if next_screen == "options" and current_screen == "home":
-            # Ne redémarre pas la musique ici, elle est déjà gérée dans main_menu
-            option_page = OptionPage(screen)
-            next_screen = option_page.show_options()
-            if next_screen == "home":
-                current_screen = "home"  # Retourne à la page d'accueil
-                continue  # Revenir au début de la boucle
-            break  # Sortir de la boucle principale si la valeur de retour n'est pas "home"
-
+            next_state = select_perso_page.run()
+            if next_state == STATE_HOME:
+                current_state = STATE_HOME
+        
+        elif current_state == STATE_OPTIONS:
+            next_state = option_page.show_options()  # Afficher la page des options
+            if next_state == STATE_HOME:
+                current_state = STATE_HOME

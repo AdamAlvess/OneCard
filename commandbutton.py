@@ -8,3 +8,7 @@ class CommandButton(Button):
         print("Action: Gestion des commandes")
         # Implémentez la logique pour gérer les commandes...
         self.play_sound()  # Joue le son de clic
+
+    def update_color(self, button_color, text_color):
+        self.button_color = button_color
+        self.text_color = text_color
