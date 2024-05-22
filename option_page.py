@@ -1,4 +1,5 @@
 import sys
+import time
 import pygame
 from assets.couleur import Couleur
 from button import Button
@@ -62,7 +63,6 @@ class OptionPage:
                         mouse_x, _ = pygame.mouse.get_pos()
                         current_music_volume = max(0, min(1, (mouse_x - option_page.volume_slider_x) - option_page.volume_slider_width))
                         pygame.mixer.music.set_volume(current_music_volume)
-                        print("Volume de la musique:", current_music_volume)
                         return
 
 
@@ -77,8 +77,7 @@ class OptionPage:
             # Lire les données du joystick
             joystick_data = self.read_joystick_data()
             if joystick_data:
-                x1, y1, x2, y2, btn1, btn2 = joystick_data
-                # Utiliser les données du joystick ici
+                x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6 = joystick_data                # Utiliser les données du joystick ici
                 if x1 > 600:  # Joystick right
                     self.increase_volume()
                 elif x1 < 400:  # Joystick left
@@ -113,13 +112,11 @@ class OptionPage:
         # Augmente le volume de la musique
         OptionPage.current_music_volume = min(1, OptionPage.current_music_volume + 0.05)
         pygame.mixer.music.set_volume(OptionPage.current_music_volume)
-        print("Volume de la musique:", OptionPage.current_music_volume)
 
     def decrease_volume(self):
         # Diminue le volume de la musique
         OptionPage.current_music_volume = max(0, OptionPage.current_music_volume - 0.05)
         pygame.mixer.music.set_volume(OptionPage.current_music_volume)
-        print("Volume de la musique:", OptionPage.current_music_volume)
 
 
     def handle_slider_movement(self):
@@ -153,32 +150,11 @@ class OptionPage:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-                    for index, button in enumerate(self.buttons):
-                        if button.rect.collidepoint(mouse_pos):
-                            if button == self.retour_button:
-                                print("Home...")
-                                self.retour_button.action()
-                                return "home"
-                            elif button == self.music_button:
-                                print("Affichage de la fenêtre de contrôle du volume...")
-                                self.music_button.action()
-                                self.show_volume_slider()
-                            elif button == self.sound_button:
-                                print("Action Sound...")
-                                self.sound_button.action()
-                                OptionPage.sound_on = not OptionPage.sound_on
-                            elif button == self.command_button:
-                                print("Action Commands...")
-                                self.command_button.action()
-                                self.show_command_window()
-                            self.selected_button_index = index  # Met à jour l'index du bouton sélectionné
-        
+                
             # Lire les données du joystick
             joystick_data = self.read_joystick_data()
             if joystick_data:
-                x1, y1, x2, y2, btn1, btn2 = joystick_data
+                x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6 = joystick_data
                 # Utiliser les données du joystick ici
                 if y1 > 600:  # Joystick down
                     self.move_selection(1)
@@ -217,7 +193,7 @@ class OptionPage:
             self.retour_button.action()
             return "home"
         elif button == self.music_button:
-            print("Affichage de la fenêtre de contrôle du volume...")
+            print("Affichage de la fenêtre de contrôle du volume 2...")
             self.music_button.action()
             self.show_volume_slider()
         elif button == self.sound_button:
@@ -264,7 +240,7 @@ class OptionPage:
             # Lire les données du joystick
             joystick_data = self.read_joystick_data()
             if joystick_data:
-                x1, y1, x2, y2, btn1, btn2 = joystick_data
+                x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6 = joystick_data
                 # Utiliser les données du joystick ici
                 if y1 > 600:  # Joystick down
                     # Sélectionner le bouton "OK"
@@ -286,12 +262,12 @@ class OptionPage:
             self.screen.blit(command_screen, (0, 0))
             pygame.display.update()
 
-    def read_joystick_data(self):
+    def read_joystick_data(self):  # Ajoutez self comme premier argument
         try:
-            data = self.ser.readline().decode('utf-8').strip()
+            data = self.ser.readline().decode('utf-8').strip()  # Utilisez self.ser pour accéder à l'attribut ser
             if data:
-                x1, y1, x2, y2, btn1, btn2 = map(int, data.split(','))
-                return x1, y1, x2, y2, btn1, btn2
+                x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6 = map(int, data.split(','))
+                return x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6
         except:
             return None
 

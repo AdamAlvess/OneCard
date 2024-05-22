@@ -8,6 +8,7 @@ class RetourButton(Button):
 
     def action(self):
         self.play_sound()  # Joue le son de clic
+        
     
     def action1(self):
         pygame.quit()  # Quitte la fenêtre de jeu

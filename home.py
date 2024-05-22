@@ -8,7 +8,7 @@ from option_page import OptionPage
 from retourbutton import RetourButton
 
 # Initialiser la connexion série
-ser = serial.Serial('/dev/tty.usbmodem11201', 9600, timeout=1)  # Remplace par le port série correct
+ser = serial.Serial('/dev/tty.usbmodem11201', 230400, timeout=1)  # Remplace par le port série correct
 
 pygame.init()
 pygame.mixer.init()
@@ -63,10 +63,11 @@ def read_joystick_data():
     try:
         data = ser.readline().decode('utf-8').strip()
         if data:
-            x1, y1, x2, y2, btn1, btn2 = map(int, data.split(','))
-            return x1, y1, x2, y2, btn1, btn2
+            x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6 = map(int, data.split(','))
+            return x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6
     except:
         return None
+
 
 def main_menu(retour_button):
     global music_loaded, nb, selected_button, current_state
@@ -96,7 +97,7 @@ def main_menu(retour_button):
 
         joystick_data = read_joystick_data()
         if joystick_data:
-            x1, y1, x2, y2, btn1, btn2 = joystick_data
+            x1, y1, x2, y2, btn1, btn2, btn3, btn4, btn5, btn6 = joystick_data
             # Utilise les données du joystick ici
             if y1 > 600:  # Joystick down
                 if selected_button == "play":
@@ -107,18 +108,25 @@ def main_menu(retour_button):
             if btn1 == 0:  # Joystick button pressed
                 if selected_button == "play":
                     print("Lancement du jeu...")
-                    retour_button.action()
                     return STATE_SELECT_PLAYER
                 elif selected_button == "options":
                     print("Aller à l'écran des options...")
                     nb = nb + 1
-                    retour_button.action() 
                     return STATE_OPTIONS
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if play_button.collidepoint(pos):
+                    print("Lancement du jeu...")
+                    return STATE_SELECT_PLAYER
+                elif options_button.collidepoint(pos):
+                    print("Aller à l'écran des options...")
+                    nb = nb + 1
+                    return STATE_OPTIONS
         
         pygame.display.update()
 
@@ -135,7 +143,7 @@ if __name__ == "__main__":
                 current_state = STATE_OPTIONS
         
         elif current_state == STATE_SELECT_PLAYER:
-            select_perso_page = SelectPersoPage(screen, background_image)
+            select_perso_page = SelectPersoPage(screen, background_image, ser)
             next_state = select_perso_page.run()
             if next_state == STATE_HOME:
                 current_state = STATE_HOME
