@@ -26,3 +26,6 @@ class SoundButton(Button):
         if SoundButton.sound_on:
             sound.play()
 
+    def update_color(self, button_color, text_color):
+        self.button_color = button_color
+        self.text_color = text_color

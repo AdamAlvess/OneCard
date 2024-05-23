@@ -1,3 +1,6 @@
+import time
+
+
 class Perso:
     def __init__(self, nom, image, pv_max=500, y=0):
         self.nom = nom
@@ -24,10 +27,12 @@ class Perso:
             self.pv = self.pv_max
 
     def deplacer_gauche(self):
-        self.x -= 10
+        self.x -= 20
+        time.sleep(0.001)
 
     def deplacer_droite(self):
-        self.x += 10
+        self.x += 20
+        time.sleep(0.001)
 
     def deplacer_haut(self):
         if self.jump_count == 0 and self.current_jumps < self.max_jumps:
