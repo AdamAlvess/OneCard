@@ -157,6 +157,11 @@ class Play:
                 if btn5 == 0:  # Bouton 2 du joystick 1 pressé
                     self.fire_bulletJ2()
 
+                if btn3 == 0:  # Bouton 1 du joystick 1 pressé jeter d'arme
+                    self.throw_weapon(1)
+                if btn6 == 0:  # Bouton 2 du joystick 1 pressé jeter d'arme
+                    self.throw_weapon(2)
+
                 # Déplacer le joueur 1
                 if btn1 == 0:  # Joystick 1 haut
                     self.personnage_joueur1.deplacer_haut()
@@ -177,24 +182,9 @@ class Play:
                     self.personnage_joueur2.deplacer_droite()
                     time.sleep(0.001)
                 
-
             print(nb)
             nb = nb + 1
             time.sleep(0.001)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    self.key_states[event.key] = True
-                    
-                    if event.key == pygame.K_e:
-                        self.throw_weapon(1)  
-                    elif event.key == pygame.K_p:
-                        self.throw_weapon(2)  
-
-                elif event.type == pygame.KEYUP:
-                    self.key_states[event.key] = False
 
             self.move_characters()
             self.personnage_joueur1.update_jump()
