@@ -6,6 +6,7 @@ from perso import Perso
 from barre_vie import Barre_vie
 from arme import Arme
 from end_game_screen import EndGameScreen
+import math
 
 class Play:
     def __init__(self, screen, joueur1, joueur2, perso_images, ser):
@@ -74,6 +75,74 @@ class Play:
             self.bullets.append((bullet_image, bullet_x, bullet_y, bullet_speed, self.personnage_joueur2))  # Ajoutez une référence au tireur
 
             
+    def throw_weapon(self, player_number, SCREEN_HEIGHT=720, SCREEN_WIDTH=1280):
+        if player_number == 1:
+            player = self.personnage_joueur1
+            direction = 1  # Lance vers la droite
+        elif player_number == 2:
+            player = self.personnage_joueur2
+            direction = -1  # Lance vers la gauche
+        else:
+            print(f"Invalid player number: {player_number}")
+            return
+
+        if player.arme:
+            weapon = player.arme
+            player.arme = None
+
+            weapon_x = player.x + player.image.get_width() // 2
+            weapon_y = player.y + player.image.get_height() // 2
+
+            initial_velocity = 15
+            angle_degrees = 30
+            gravity = 0.2
+
+            angle_radians = math.radians(angle_degrees)
+            vx = direction * initial_velocity * math.cos(angle_radians)
+            vy = -initial_velocity * math.sin(angle_radians)
+
+            time = 0
+            while True:
+                pygame.time.wait(30)
+                time += 1
+                weapon_x += vx
+                weapon_y += vy + 0.5 * gravity * time ** 2
+
+                self.screen.blit(weapon.image, (weapon_x, weapon_y))
+
+                if self.check_collision_with_opponent(weapon_x, weapon_y, weapon, player_number):
+                    if player_number == 1:
+                        opponent = self.personnage_joueur2
+                    else:
+                        opponent = self.personnage_joueur1
+                    opponent.perdre_pv(80)
+                    break
+
+                if weapon_y > SCREEN_HEIGHT or weapon_x < 0 or weapon_x > SCREEN_WIDTH:
+                    break
+
+                pygame.display.flip()
+
+            ground_level = SCREEN_HEIGHT - 200
+            self.weapons.append((weapon, weapon_x, ground_level - weapon.image.get_height()))
+
+        else:
+            print(f"Player {player_number} has no weapon to throw.")
+
+
+
+
+    def check_collision_with_opponent(self, x, y, weapon, player_number):
+        if player_number == 1:
+            opponent = self.personnage_joueur2
+        else:
+            opponent = self.personnage_joueur1
+            
+        opponent_rect = pygame.Rect(opponent.x, opponent.y, opponent.image.get_width(), opponent.image.get_height())
+        weapon_rect = pygame.Rect(x, y, weapon.image.get_width(), weapon.image.get_height())
+        return weapon_rect.colliderect(opponent_rect)
+
+
     def run(self):
         nb = 0
         running = True
@@ -107,10 +176,26 @@ class Play:
                 elif x2 > 600:  # Joystick 2 droite
                     self.personnage_joueur2.deplacer_droite()
                     time.sleep(0.001)
+                
 
             print(nb)
             nb = nb + 1
             time.sleep(0.001)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    self.key_states[event.key] = True
+                    
+                    if event.key == pygame.K_e:
+                        self.throw_weapon(1)  
+                    elif event.key == pygame.K_p:
+                        self.throw_weapon(2)  
+
+                elif event.type == pygame.KEYUP:
+                    self.key_states[event.key] = False
+
             self.move_characters()
             self.personnage_joueur1.update_jump()
             self.personnage_joueur2.update_jump()
@@ -118,6 +203,7 @@ class Play:
             self.spawn_random_weapon()
             self.update()
             self.draw()
+
             pygame.display.flip()
             self.clock.tick(30)
 
@@ -208,21 +294,22 @@ class Play:
             y_position = -random_weapon.image.get_height()
             self.weapons.append((random_weapon, x_position, y_position))
             self.last_weapon_spawn = current_time
-    
+
     def detect_collision(self):
         player1_rect = pygame.Rect(self.personnage_joueur1.x, self.personnage_joueur1.y, self.personnage_joueur1.image.get_width(), self.personnage_joueur1.image.get_height())
         player2_rect = pygame.Rect(self.personnage_joueur2.x, self.personnage_joueur2.y, self.personnage_joueur2.image.get_width(), self.personnage_joueur2.image.get_height())
 
-        # Vérification des collisions avec les armes
         for weapon, x, y in self.weapons:
             weapon_rect = pygame.Rect(x, y, weapon.image.get_width(), weapon.image.get_height())
             if player1_rect.colliderect(weapon_rect):
                 self.personnage_joueur1.arme = weapon
                 self.weapons.remove((weapon, x, y))
+                print("Player 1 picked up a weapon")
                 break
             if player2_rect.colliderect(weapon_rect):
                 self.personnage_joueur2.arme = weapon
                 self.weapons.remove((weapon, x, y))
+                print("Player 2 picked up a weapon")
                 break
 
         # Vérification des collisions avec les bullets
