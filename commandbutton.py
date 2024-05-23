@@ -6,5 +6,4 @@ class CommandButton(Button):
 
     def action(self):
         print("Action: Gestion des commandes")
-        # Implémentez la logique pour gérer les commandes...
         self.play_sound()  # Joue le son de clic

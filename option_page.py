@@ -101,8 +101,6 @@ class OptionPage:
             OptionPage.current_music_volume = volume
             print("Volume de la musique:", volume)
 
-
-
     def is_ok_clicked(self, mouse_pos):
         # Vérifie si le bouton "OK" est cliqué
         ok_button_rect = pygame.Rect(550, 500, 100, 50)
