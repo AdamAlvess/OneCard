@@ -52,7 +52,7 @@ class EndGameScreen:
                 if y1 > 600:  # Joystick down
                     self.move_selection(1)
                     self.update_selected_button_color()  # Met à jour la couleur des boutons après le déplacement
-                elif btn3 == 0:  # Joystick up
+                elif y1 < 400:  # Joystick up
                     self.move_selection(-1)
                     self.update_selected_button_color()  # Met à jour la couleur des boutons après le déplacement
                 if btn1 == 0:  # Joystick button pressed

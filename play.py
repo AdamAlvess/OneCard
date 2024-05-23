@@ -89,7 +89,7 @@ class Play:
                     self.fire_bulletJ2()
 
                 # Déplacer le joueur 1
-                if btn3 == 0:  # Joystick 1 haut
+                if btn1 == 0:  # Joystick 1 haut
                     self.personnage_joueur1.deplacer_haut()
                 if x1 < 400:  # Joystick 1 gauche
                     self.personnage_joueur1.deplacer_gauche()
@@ -99,7 +99,7 @@ class Play:
                     time.sleep(0.001)
 
                 # Déplacer le joueur 2
-                if btn6 == 0:  # Joystick 2 haut
+                if btn4 == 0:  # Joystick 2 haut
                     self.personnage_joueur2.deplacer_haut()
                 if x2 < 400:  # Joystick 2 gauche
                     self.personnage_joueur2.deplacer_gauche()
@@ -329,7 +329,7 @@ class Play:
             # Gérer le mouvement vers le haut ou le bas du joystick 1
             if y1 > 600:  # Joystick bas
                 self.joystick1_index = (self.joystick1_index + 1) % (len(self.perso_images) // 2 + 2)
-            elif btn3 == 0:  # Joystick haut
+            elif btn1 == 0:  # Joystick haut
                 self.joystick1_index = (self.joystick1_index - 1) % (len(self.perso_images) // 2 + 2)
 
             if self.joystick1_index == len(self.perso_images) // 2:
@@ -359,7 +359,7 @@ class Play:
             # Gérer le mouvement vers le haut ou le bas du joystick 2
             if y2 > 600:  # Joystick bas
                 self.joystick2_index = (self.joystick2_index + 1) % (len(self.perso_images) // 2 + 2)
-            elif btn6 == 0:  # Joystick haut
+            elif btn4 == 0:  # Joystick haut
                 self.joystick2_index = (self.joystick2_index - 1) % (len(self.perso_images) // 2 + 2)
 
             if self.joystick2_index == len(self.perso_images) // 2:
@@ -369,7 +369,7 @@ class Play:
             else:
                 self.joystick2_selection = list(self.perso_images.keys())[self.joystick2_index * 2 + 1]
 
-            if btn2 == 0:  # Bouton du joystick 2 pressé
+            if btn4 == 0:  # Bouton du joystick 2 pressé
                 if self.joystick2_selection in self.perso_images:
                     self.joueur2.perso = self.joystick2_selection
                 elif self.joystick2_selection == "Retour":
