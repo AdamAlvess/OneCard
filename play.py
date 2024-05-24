@@ -43,7 +43,10 @@ class Play:
         self.last_weapon_spawn = pygame.time.get_ticks()
         self.first_spawn = False
         self.bullets = []
-        self.ser = ser  # Ajoutez cette ligne pour initialiser l'attribut ser
+        self.ser = ser 
+        self.last_shot_time_j1 = 0
+        self.last_shot_time_j2 = 0
+        self.shoot_delay = 700
 
         
     def start_new_game(self, joueur1, joueur2, perso_images):  # Ajoutez self comme premier paramètre
@@ -59,21 +62,26 @@ class Play:
         return pygame.transform.scale(image, (50, 50))
     
     def fire_bulletJ1(self):
-        if self.personnage_joueur1.arme:
-            bullet_image = pygame.image.load("assets/tire.png").convert_alpha()
-            bullet_x = self.personnage_joueur1.x + self.personnage_joueur1.image.get_width() // 2
-            bullet_y = self.personnage_joueur1.y + self.personnage_joueur1.image.get_height() // 2
-            bullet_speed = 10
-            self.bullets.append((bullet_image, bullet_x, bullet_y, bullet_speed, self.personnage_joueur1))  # Ajoutez une référence au tireur
-
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time_j1 >= self.shoot_delay:
+            if self.personnage_joueur1.arme:
+                bullet_image = pygame.image.load("assets/tire.png").convert_alpha()
+                bullet_x = self.personnage_joueur1.x + self.personnage_joueur1.image.get_width() // 2
+                bullet_y = self.personnage_joueur1.y + self.personnage_joueur1.image.get_height() // 2
+                bullet_speed = 10
+                self.bullets.append((bullet_image, bullet_x, bullet_y, bullet_speed, self.personnage_joueur1))
+                self.last_shot_time_j1 = current_time
+                
     def fire_bulletJ2(self):
-        if self.personnage_joueur2.arme:
-            bullet_image = pygame.image.load("assets/tire.png").convert_alpha()
-            bullet_x = self.personnage_joueur2.x + self.personnage_joueur2.image.get_width() // 2
-            bullet_y = self.personnage_joueur2.y + self.personnage_joueur2.image.get_height() // 2
-            bullet_speed = -10
-            self.bullets.append((bullet_image, bullet_x, bullet_y, bullet_speed, self.personnage_joueur2))  # Ajoutez une référence au tireur
-
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time_j2 >= self.shoot_delay:
+            if self.personnage_joueur2.arme:
+                bullet_image = pygame.image.load("assets/tire.png").convert_alpha()
+                bullet_x = self.personnage_joueur2.x + self.personnage_joueur2.image.get_width() // 2
+                bullet_y = self.personnage_joueur2.y + self.personnage_joueur2.image.get_height() // 2
+                bullet_speed = -10
+                self.bullets.append((bullet_image, bullet_x, bullet_y, bullet_speed, self.personnage_joueur2))  
+                self.last_shot_time_j2 = current_time
             
     def throw_weapon(self, player_number, SCREEN_HEIGHT=720, SCREEN_WIDTH=1280):
         if player_number == 1:
@@ -166,21 +174,25 @@ class Play:
                 if btn1 == 0:  # Joystick 1 haut
                     self.personnage_joueur1.deplacer_haut()
                 if x1 < 400:  # Joystick 1 gauche
-                    self.personnage_joueur1.deplacer_gauche()
-                    time.sleep(0.001)
+                    if self.personnage_joueur1.x > 0: 
+                        self.personnage_joueur1.deplacer_gauche()
+                        time.sleep(0.001)
                 elif x1 > 600:  # Joystick 1 droite
-                    self.personnage_joueur1.deplacer_droite()
-                    time.sleep(0.001)
+                    if self.personnage_joueur1.x < 1280 - self.personnage_joueur1.image.get_width(): 
+                        self.personnage_joueur1.deplacer_droite()
+                        time.sleep(0.001)
 
                 # Déplacer le joueur 2
                 if btn4 == 0:  # Joystick 2 haut
                     self.personnage_joueur2.deplacer_haut()
                 if x2 < 400:  # Joystick 2 gauche
-                    self.personnage_joueur2.deplacer_gauche()
-                    time.sleep(0.001)
+                    if self.personnage_joueur2.x > 0: 
+                        self.personnage_joueur2.deplacer_gauche()
+                        time.sleep(0.001)
                 elif x2 > 600:  # Joystick 2 droite
-                    self.personnage_joueur2.deplacer_droite()
-                    time.sleep(0.001)
+                    if self.personnage_joueur2.x < 1280 - self.personnage_joueur2.image.get_width(): 
+                        self.personnage_joueur2.deplacer_droite()
+                        time.sleep(0.001)
                 
             print(nb)
             nb = nb + 1
@@ -199,6 +211,7 @@ class Play:
 
 
 
+
     def move_characters(self, SCREEN_WIDTH=1280):
         # Déplacer le joueur 1
         if self.key_states.get(pygame.K_z):
@@ -206,19 +219,17 @@ class Play:
         if self.key_states.get(pygame.K_q):
             if self.personnage_joueur1.x > 0:  
                 self.personnage_joueur1.deplacer_gauche()
-                
         if self.key_states.get(pygame.K_d):
-            if self.personnage_joueur1.x < SCREEN_WIDTH - self.personnage_joueur1.image.get_width(): 
+            if self.personnage_joueur1.x < SCREEN_WIDTH - self.personnage_joueur1.image.get_width():
                 self.personnage_joueur1.deplacer_droite()
-
         # Déplacer le joueur 2
         if self.key_states.get(pygame.K_UP):
             self.personnage_joueur2.deplacer_haut()
         if self.key_states.get(pygame.K_LEFT):
-            if self.personnage_joueur2.x > 0: 
+            if self.personnage_joueur2.x > 0:
                 self.personnage_joueur2.deplacer_gauche()
         if self.key_states.get(pygame.K_RIGHT):
-            if self.personnage_joueur2.x < SCREEN_WIDTH - self.personnage_joueur2.image.get_width(): 
+            if self.personnage_joueur2.x < SCREEN_WIDTH - self.personnage_joueur2.image.get_width():
                 self.personnage_joueur2.deplacer_droite()
                 
     def check_victory(self):

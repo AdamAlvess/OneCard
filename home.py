@@ -13,8 +13,8 @@ ser = serial.Serial('/dev/tty.usbmodem11201', 230400, timeout=1)  # Remplace par
 pygame.init()
 pygame.mixer.init()
 
-SCREEN_WIDTH = 1500
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("One Card")
 
