@@ -65,8 +65,10 @@ class SelectPersoPage:
                         return "home"
                     elif self.player1_rect.collidepoint(pos):
                         self.joueur1.perso = self.select_perso(pos)
+                        self.retour_button.action()
                     elif self.player2_rect.collidepoint(pos):
                         self.joueur2.perso = self.select_perso(pos)
+                        self.retour_button.action()
                     elif self.play_rect.collidepoint(pos):
                         if self.joueur1.perso is not None and self.joueur2.perso is not None:
                             play_page = Play(self.screen, self.joueur1, self.joueur2, self.perso_images, self.ser)
